@@ -8,15 +8,24 @@
             crossorigin="anonymous">
     </script>
     <script src="../Scripts/ajaxCalls.js"></script>
-    <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>-->
-    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>-->
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script src="../Scripts/navbarFunc.js"></script>
+    <link href="navbarStyle.css" rel="stylesheet" />
     <link href="commentStyle.css" rel="stylesheet" />
-
+    
     <script>
         $(document).ready(function () {
+            navBarVisability();
             //Details about TVShow and the user:
             s = JSON.parse(localStorage.series);
             seriesId = s.seriesObj.Id;
@@ -27,22 +36,30 @@
             else
                 userProfile = "https://image.ibb.co/jw55Ex/def_face.jpg";
 
+            $('#forumTitle').html(user.FirstName + " " + user.LastName + ", welcome to the Fan Forum Of " + s.seriesObj.Name);
             buttonsEvents();
             showForum(seriesId);
+
+            //get the user and the comments he likes
+            getUserCommetsLike(user.Id, seriesId);
         });
 
         function buttonsEvents() {
             submit.addEventListener('click', function publishComment() {
                 let content = $("#contentText").val();
-
-                let comment = {
-                    currDate: date,
-                    userId: user.Id,
-                    userName: user.FirstName + " " + user.LastName,
-                    seriesId: seriesId,
-                    content: content,
+                if (content != "") {
+                    let comment = {
+                        currDate: date,
+                        userId: user.Id,
+                        userName: user.FirstName + " " + user.LastName,
+                        seriesId: seriesId,
+                        content: content,
+                    }
+                    addComment(comment);
                 }
-                addComment(comment);
+                else {
+                    sweetAlert("Cant send comment...", "Content is missing!", "error")
+                }
             });
         }
 
@@ -55,12 +72,16 @@
             dialogElem.close();
         }
 
+        function getUserCommetsLike() {
+
+        }
+
         function showForum(seriesId) {
             let api = "../api/Comments?seriesId=" + seriesId;
             ajaxCall("GET", api, "", getSuccessCB, getErrorCB)
         }
-        
-        
+
+
         function getSuccessCB(commentsList) {
             let str = "";
             for (const c of commentsList) {
@@ -80,14 +101,14 @@
             ajaxCall("GET", api, "", getSCSuccessCB, getSCErrorCB)
         }
 
-        function getSCSuccessCB(subCommentsList) {            
+        function getSCSuccessCB(subCommentsList) {
             for (const c of subCommentsList) {
                 let str = "";
                 str += drawSubComment(c);
-                let commId = document.getElementById('comment-'+ c.CommentId);
+                let commId = document.getElementById('comment-' + c.CommentId);
                 commId.innerHTML += str;
             }
-            
+
         }
 
         function getSCErrorCB(err) {
@@ -107,6 +128,7 @@
             ajaxCall("POST", "../api/Comments", JSON.stringify(comment), postCommentSuccess, postCommentError)
         }
         function postCommentSuccess(series) {
+            $('#contentText').val("");
             alert("Submitted to the server! success");
             console.log(series);
             showForum(series);
@@ -118,18 +140,22 @@
         }
         function addSubComment(commId) {
             subCommentContent = $('#reply' + commId).val();
-            closeDialog(commId);
-            
-            let subComment = {
-                commentId: commId,
-                currDate: date,
-                userId: user.Id,
-                userName: user.FirstName + " " + user.LastName,
-                seriesId: seriesId,
-                content: subCommentContent
+            if (subCommentContent != "") {
+                let subComment = {
+                    commentId: commId,
+                    currDate: date,
+                    userId: user.Id,
+                    userName: user.FirstName + " " + user.LastName,
+                    seriesId: seriesId,
+                    content: subCommentContent
+                }
+                console.log(subComment);
+                ajaxCall("POST", "../api/SubComments", JSON.stringify(subComment), postSCommentSuccess, postSCommentError);
             }
-            console.log(subComment);
-            ajaxCall("POST", "../api/SubComments", JSON.stringify(subComment), postSCommentSuccess, postSCommentError);
+            else {
+                sweetAlert("Cant send comment...", "Content is missing!", "error")
+            }
+            closeDialog(commId);
         }
 
         function postSCommentSuccess(series) {
@@ -150,44 +176,44 @@
             //    classStyle= `style= "margin-left: 10px";`
 
             return `<div class="be-comment">
-                        <div class="be-img-comment">
-                                <img src="`+ userProfile +`" alt="" class="be-ava-comment">
-                        </div>
-                        <div class="be-comment-content">
-                            <span class="be-comment-name">
-                                `+ comm.UserName + `
-                            </span>
-                            <span class="be-comment-time">
-                                <i class="fa fa-clock-o"></i>
-                                `+ comm.CurrDate + `
-                            </span>
-                            <p class="be-comment-text">
-                                `+ comm.Content + `
-                            </p>
-                            ` + drawLike(comm) + `
+                                            <div class="be-img-comment">
+                                                    <img src="`+ userProfile + `" alt="" class="be-ava-comment">
+                                            </div>
+                                            <div class="be-comment-content">
+                                                <span class="be-comment-name">
+                                                    `+ comm.UserName + `
+                                                </span>
+                                                <span class="be-comment-time">
+                                                    <i class="fa fa-clock-o"></i>
+                                                    `+ comm.CurrDate + `
+                                                </span>
+                                                <p class="be-comment-text">
+                                                    `+ comm.Content + `
+                                                </p>
+                                                ` + drawLike(comm) + `
 
-                            <button id="replying" class="reply" onclick="openDialog(` + comm.CommentId + `)">Reply</button>
-                            <dialog id="idDialog` + comm.CommentId + `">
-                                <label for="reply">Reply:</label>
-                                <br>
-                                <input id="reply` + comm.CommentId + `" type="text" class="reply" name="reply">
-                                <br>
-                                <button id="`+ comm.CommentId + `" class="close" onclick="addSubComment(` + comm.CommentId +`)">Close this Dialog</button>
-                            </dialog>
-                        </div>
-                    </div>
-                    <div id=comment-`+ comm.CommentId + `></div>`
-                    
+                                                <button id="replying" class="reply" onclick="openDialog(` + comm.CommentId + `)"><i class="material-icons">&#xe15e;</i></button>
+                                                <dialog id="idDialog` + comm.CommentId + `">
+                                                    <label for="reply">Reply:</label>
+                                                    <br>
+                                                    <input id="reply` + comm.CommentId + `" type="text" class="reply" name="reply">
+                                                    <br>
+                                                    <button id="`+ comm.CommentId + `" class="close" onclick="addSubComment(` + comm.CommentId + `)">Close this Dialog</button>
+                                                </dialog>
+                                            </div>
+                                        </div>
+                                        <div id=comment-`+ comm.CommentId + `></div>`
+
         }
 
         function drawLike(comm) {
             let likeId = "like" + comm.CommentId;
             let dislikeId = "dislike" + comm.CommentId;
-            return `<label class="likes" style = "color: green"> ` + comm.Likes +`</label>
-                <i id="` + likeId + `" onclick="toggleLike(this, '` + dislikeId + `', ` + comm.CommentId + `, 'fa-thumbs-up', 'fa-thumbs-down', updateCommentLikes)" class="fa fa-thumbs-o-up"></i>
-                <label class="dislikes" style = "color: red"> `+ comm.Dislikes +`</label>
-                <i id="` + dislikeId + `" onclick="toggleLike(this, '` + likeId + `',` + comm.CommentId + `, 'fa-thumbs-down', 'fa-thumbs-up', updateCommentDislikes)" class="fa fa-thumbs-o-down"></i>
-            `;
+            return `<label class="likes" style = "color: green"> ` + comm.Likes + `</label>
+                                    <i id="` + likeId + `" onclick="toggleLike(this, '` + dislikeId + `', ` + comm.CommentId + `, 'fa-thumbs-up', 'fa-thumbs-down', updateCommentLikes)" class="fa fa-thumbs-o-up"></i>
+                                    <label class="dislikes" style = "color: red"> `+ comm.Dislikes + `</label>
+                                    <i id="` + dislikeId + `" onclick="toggleLike(this, '` + likeId + `',` + comm.CommentId + `, 'fa-thumbs-down', 'fa-thumbs-up', updateCommentDislikes)" class="fa fa-thumbs-o-down"></i>
+                                `;
         }
 
         function toggleLike(x, otherThumbId, commentId, myClass, otherClass, updateCallback) {
@@ -209,10 +235,10 @@
 
         function updateCommentLikes(commentId, number) {
             alert("change " + commentId + " likes by " + number);
-            //update comment with this commentId likes on db ny number 
+            //update comment with this commentId likes on db ny number
             let api = "../api/Comments?commentId=" + commentId + "&likes=" + number + "&dislikes=0";
             ajaxCall("PUT", api, "", updateLikesSuccess, error);
-            
+
         }
 
         function updateLikesSuccess() {
@@ -223,41 +249,65 @@
         }
         function updateCommentDislikes(commentId, number) {
             alert("change " + commentId + " dislikes by " + number);
-            //update comment with this commentId dislikes on db ny number 
+            //update comment with this commentId dislikes on db ny number
             let api = "../api/Comments?commentId=" + commentId + "&likes=0" + "&dislikes=" + number;
             ajaxCall("PUT", api, "", updateLikesSuccess, error);
         }
 
         function drawSubComment(comm) {
             return `<div class="be-comment" style= "margin-left: 60px;">
-                        <div class="be-img-comment">
-                                <img src="`+ userProfile +`" alt="" class="be-ava-comment">
-                        </div>
-                        <div class="be-comment-content">
-                            <span class="be-comment-name">
-                                `+ comm.UserName + `
-                            </span>
-                            <span class="be-comment-time">
-                                <i class="fa fa-clock-o"></i>
-                                `+ comm.CurrDate + `
-                            </span>
-                            <p class="be-comment-text">
-                                `+ comm.Content + `
-                            </p>
-                        </div>
-                    </div>`
+                                            <div class="be-img-comment">
+                                                    <img src="`+ userProfile + `" alt="" class="be-ava-comment">
+                                            </div>
+                                            <div class="be-comment-content">
+                                                <span class="be-comment-name">
+                                                    `+ comm.UserName + `
+                                                </span>
+                                                <span class="be-comment-time">
+                                                    <i class="fa fa-clock-o"></i>
+                                                    `+ comm.CurrDate + `
+                                                </span>
+                                                <p class="be-comment-text">
+                                                    `+ comm.Content + `
+                                                </p>
+                                            </div>
+                                        </div>`
         }
 
         //<label class="likes" style = "color: green"> `+ comm.Likes +`</label>
-                            //<label class="dislikes" style = "color: red"> `+ comm.Dislikes +`</label>
+        //<label class="dislikes" style = "color: red"> `+ comm.Dislikes +`</label>
     </script>
 </head>
 <body>
+    <nav class="navbar navbar-inverse ">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">The Movie H & H</a>
+            </div>
+            <ul class="nav navbar-nav justify-content-between">
+                <li><div id="profile"></div></li>
+                <li><div id="userName"></div></li>
+                <li><a class="toblack" href="homePage.html"> Home</a></li>
+                <li><a class="toblack" href="insert_signup.html">Search</a></li>
+                <li><a class="toblack" id="view" href="view.html">View</a></li>
+                <li><a class="toblack" id="admin" href="admin.html">Admin</a></li>
+
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li><a onclick="signUpClick()" id="signUp" class="toblack"><span class="glyphicon glyphicon-user singupc"></span> Sign Up</a></li>
+                <li><a id="login" href="login.html" class="toblack"><span class="glyphicon glyphicon-log-in"></span>  Login</a></li>
+                <li><a href="editUser.html" id="editUser" class="toblack"><span class="glyphicon glyphicon-user singupc"></span>  Edit Profile</a></li>
+                <li><a onclick="exitFunc()" id="exit" class="toblack"><span class="glyphicon glyphicon-log-in "></span>  Exit</a></li>
+            </ul>
+        </div>
+    </nav>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <div class="container">
+        <div id="forumTitle"></div>
         <div id="forum" class="be-comment-block">
             <h1 class="comments-title">Loading Comments</h1>
-            
+
             <!--  -->
             <!--<dialog id="idDialog">
                 <label for="reply">Reply:</label>
@@ -329,29 +379,30 @@
                 </div>
             </div>-->
         </div>
-            <!--<form class="form-block">-->
-                <div class="row">
-                    <!--<div class="col-xs-12 col-sm-6">-->
-                        <!--<div class="form-group fl_icon">
-                            <div class="icon"><i class="fa fa-user"></i></div>
-                            <input class="form-input" type="text" placeholder="Your name">
-                        </div>
-                    </div>-->
-                    <!--<div class="col-xs-12 col-sm-6 fl_icon">
-                        <div class="form-group fl_icon">
-                            <div class="icon"><i class="fa fa-envelope-o"></i></div>
-                            <input class="form-input" type="text" placeholder="Your email">
-                        </div>
-                    </div>-->
-
-                    <div class="col-xs-12">
-                        <div class="form-group">
-                            <textarea id="contentText" class="form-input" required="" placeholder="Your text"></textarea>
-                        </div>
-                    </div>
-                    <button id="submit"class="btn btn-primary pull-right">Submit</button>
+        <!--<form class="form-block">-->
+        <div class="row">
+            <!--<div class="col-xs-12 col-sm-6">-->
+            <!--<div class="form-group fl_icon">
+                    <div class="icon"><i class="fa fa-user"></i></div>
+                    <input class="form-input" type="text" placeholder="Your name">
                 </div>
-            <!--</form>-->
+            </div>-->
+            <!--<div class="col-xs-12 col-sm-6 fl_icon">
+                <div class="form-group fl_icon">
+                    <div class="icon"><i class="fa fa-envelope-o"></i></div>
+                    <input class="form-input" type="text" placeholder="Your email">
+                </div>
+            </div>-->
+            <div id="sendMsgRow">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <textarea id="contentText" class="form-input" required="" placeholder="Your text"></textarea>
+                    </div>
+                </div>
+                <button id="submit" class="btn btn-primary pull-right"><i class="fa fa-send-o" style="font-size:36px"></i></button>
+            </div>
+        </div>
+        <!--</form>-->
 
     </div>
 </body>
