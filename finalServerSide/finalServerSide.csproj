@@ -328,6 +328,7 @@
     <Content Include="Pages\aboutTv.html" />
     <Content Include="Pages\admin.html" />
     <Content Include="Pages\adminStyle.css" />
+    <Content Include="Pages\btnLikeStyle.css" />
     <Content Include="Pages\chatStyle.css" />
     <Content Include="Pages\chatTry.html" />
     <Content Include="Pages\comment.html" />

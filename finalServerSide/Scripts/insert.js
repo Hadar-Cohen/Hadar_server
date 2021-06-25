@@ -32,6 +32,18 @@ $(document).ready(function () {
         document.getElementById('scripted').focus();
     };
 
+        //$("i").click(function () {
+        //    $("i,span").toggleClass("press", 1000);
+        //});
+
+    swal({
+        title: "Sweet!",
+        text: "Here's a custom image.",
+        imageUrl: 'thumbs-up.jpg'
+    });
+   
+    swal("Sweet!", "Here's a custom image.", 'thumbs-up.jpg');
+
 });
 
 //https://api.themoviedb.org/3/tv/{tv_id}/season/{season_number}?api_key=<<api_key>>&language=en-US
@@ -203,6 +215,10 @@ function getEpisodeSuccessCB(episodes) {
     episodesList += "</b></br> " + episodes.air_date + "</br></br><div id='episodeOverView'>" + episodes.overview + "</div></div>";
     if (localStorage.user != undefined) {
         episodesList += "</br><button class='addBtn' id='" + c + "' type='button' onclick=PostToServer(epArr[this.id])> Add </button> </center>";
+        //episodesList += `<div id="` + c + `" onclick=PostToServer(epArr[this.id])>
+        //                      <i></i>
+        //                      <span>liked!</span>
+        //                 </div></center>`
     }
     episodesList += "</div>";
     c++;

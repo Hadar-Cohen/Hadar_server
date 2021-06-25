@@ -33,8 +33,10 @@ namespace finalServerSide.Controllers
         }
 
         // PUT api/<controller>/5
-        public void Put(int id, [FromBody] string value)
+        public void Put(int commentId, int likes, int dislikes)
         {
+            Comment c = new Comment();
+            c.UpdateLikes(commentId, likes, dislikes);
         }
 
         // DELETE api/<controller>/5

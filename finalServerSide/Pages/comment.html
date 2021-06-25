@@ -34,27 +34,27 @@
         function buttonsEvents() {
             submit.addEventListener('click', function publishComment() {
                 let content = $("#contentText").val();
+
                 let comment = {
                     currDate: date,
                     userId: user.Id,
                     userName: user.FirstName + " " + user.LastName,
                     seriesId: seriesId,
-                    content: content
+                    content: content,
                 }
                 addComment(comment);
             });
         }
 
-        function openDialog() {
-            var dialogElem = document.getElementById("idDialog");
+        function openDialog(commentId) {
+            var dialogElem = document.getElementById("idDialog" + commentId);
             dialogElem.showModal();
         }
-        function closeDialog() {
-            var dialogElem = document.getElementById("idDialog");
+        function closeDialog(commentId) {
+            var dialogElem = document.getElementById("idDialog" + commentId);
             dialogElem.close();
         }
 
-       /* str = "";*/
         function showForum(seriesId) {
             let api = "../api/Comments?seriesId=" + seriesId;
             ajaxCall("GET", api, "", getSuccessCB, getErrorCB)
@@ -63,12 +63,8 @@
         
         function getSuccessCB(commentsList) {
             let str = "";
-            //commentsArr = []; i = 0;
             for (const c of commentsList) {
-                //commentsArr[i] = c;
                 str += drawComment(c);
-                //i++;
-                //הפעלת פונקציה של GET
                 getSubComments(c.SeriesId, c.CommentId);
             }
             $("#forum").html(str);
@@ -84,11 +80,14 @@
             ajaxCall("GET", api, "", getSCSuccessCB, getSCErrorCB)
         }
 
-        function getSCSuccessCB(subCommentsList) {
-             let str = "";
+        function getSCSuccessCB(subCommentsList) {            
             for (const c of subCommentsList) {
+                let str = "";
                 str += drawSubComment(c);
+                let commId = document.getElementById('comment-'+ c.CommentId);
+                commId.innerHTML += str;
             }
+            
         }
 
         function getSCErrorCB(err) {
@@ -118,8 +117,8 @@
             console.log(err);
         }
         function addSubComment(commId) {
-            subCommentContent = $('.reply')[1].value;
-            closeDialog();
+            subCommentContent = $('#reply' + commId).val();
+            closeDialog(commId);
             
             let subComment = {
                 commentId: commId,
@@ -134,7 +133,7 @@
         }
 
         function postSCommentSuccess(series) {
-            alert("Success!");
+            alert("Post Success!");
             console.log(series);
             showForum(series);
         }
@@ -152,9 +151,7 @@
 
             return `<div class="be-comment">
                         <div class="be-img-comment">
-                            <a href="blog-detail-2.html">
                                 <img src="`+ userProfile +`" alt="" class="be-ava-comment">
-                            </a>
                         </div>
                         <div class="be-comment-content">
                             <span class="be-comment-name">
@@ -168,24 +165,28 @@
                                 `+ comm.Content + `
                             </p>
                             ` + drawLike(comm) + `
-                            <button id="replying" class="reply" onclick="openDialog()">Reply</button>
-                            <dialog id="idDialog">
+
+                            <button id="replying" class="reply" onclick="openDialog(` + comm.CommentId + `)">Reply</button>
+                            <dialog id="idDialog` + comm.CommentId + `">
                                 <label for="reply">Reply:</label>
                                 <br>
-                                <input type="text" class="reply" name="reply">
+                                <input id="reply` + comm.CommentId + `" type="text" class="reply" name="reply">
                                 <br>
                                 <button id="`+ comm.CommentId + `" class="close" onclick="addSubComment(` + comm.CommentId +`)">Close this Dialog</button>
                             </dialog>
                         </div>
                     </div>
-                    <div class="`+ comm.CommentId + `"></div>`
+                    <div id=comment-`+ comm.CommentId + `></div>`
                     
         }
 
         function drawLike(comm) {
-            return `
-                <i id="like" onclick="toggleLike(this, 'dislike', ` + comm.CommentId + `, 'fa-thumbs-up', 'fa-thumbs-down', updateCommentLikes)" class="fa fa-thumbs-o-up"></i>
-                <i id="dislike" onclick="toggleLike(this, 'like',` + comm.CommentId + `, 'fa-thumbs-down', 'fa-thumbs-up', updateCommentDislikes)" class="fa fa-thumbs-o-down"></i>
+            let likeId = "like" + comm.CommentId;
+            let dislikeId = "dislike" + comm.CommentId;
+            return `<label class="likes" style = "color: green"> ` + comm.Likes +`</label>
+                <i id="` + likeId + `" onclick="toggleLike(this, '` + dislikeId + `', ` + comm.CommentId + `, 'fa-thumbs-up', 'fa-thumbs-down', updateCommentLikes)" class="fa fa-thumbs-o-up"></i>
+                <label class="dislikes" style = "color: red"> `+ comm.Dislikes +`</label>
+                <i id="` + dislikeId + `" onclick="toggleLike(this, '` + likeId + `',` + comm.CommentId + `, 'fa-thumbs-down', 'fa-thumbs-up', updateCommentDislikes)" class="fa fa-thumbs-o-down"></i>
             `;
         }
 
@@ -209,20 +210,28 @@
         function updateCommentLikes(commentId, number) {
             alert("change " + commentId + " likes by " + number);
             //update comment with this commentId likes on db ny number 
+            let api = "../api/Comments?commentId=" + commentId + "&likes=" + number + "&dislikes=0";
+            ajaxCall("PUT", api, "", updateLikesSuccess, error);
+            
         }
 
+        function updateLikesSuccess() {
+            alert("YAY!!!")
+        }
+        function error(err) {
+            alert("ERROR :(")
+        }
         function updateCommentDislikes(commentId, number) {
             alert("change " + commentId + " dislikes by " + number);
             //update comment with this commentId dislikes on db ny number 
+            let api = "../api/Comments?commentId=" + commentId + "&likes=0" + "&dislikes=" + number;
+            ajaxCall("PUT", api, "", updateLikesSuccess, error);
         }
 
         function drawSubComment(comm) {
-            console.log(comm);
-            return `<div class="be-comment" style= "margin-left: 10px;">
+            return `<div class="be-comment" style= "margin-left: 60px;">
                         <div class="be-img-comment">
-                            <a href="blog-detail-2.html">
                                 <img src="`+ userProfile +`" alt="" class="be-ava-comment">
-                            </a>
                         </div>
                         <div class="be-comment-content">
                             <span class="be-comment-name">
@@ -235,24 +244,20 @@
                             <p class="be-comment-text">
                                 `+ comm.Content + `
                             </p>
-                            <button id="replying" class="reply" onclick="openDialog()">Reply</button>
-                            <dialog id="idDialog">
-                                <label for="reply">Reply:</label>
-                                <br>
-                                <input type="text" class="reply" name="reply">
-                                <br>
-                                <button class="close" onclick="drawSubComment(`+ comm.CommentId + `)">Close this Dialog</button>
-                            </dialog>
                         </div>
                     </div>`
         }
+
+        //<label class="likes" style = "color: green"> `+ comm.Likes +`</label>
+                            //<label class="dislikes" style = "color: red"> `+ comm.Dislikes +`</label>
     </script>
 </head>
 <body>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <div class="container">
         <div id="forum" class="be-comment-block">
-            <h1 class="comments-title">Comments (3)</h1>
+            <h1 class="comments-title">Loading Comments</h1>
+            
             <!--  -->
             <!--<dialog id="idDialog">
                 <label for="reply">Reply:</label>

@@ -121,6 +121,7 @@ namespace finalServerSide.Models.DAL
                 while (dr.Read())
                 {   // Read till the end of the data into a row
                     SubComment c = new SubComment();
+                    c.SubCommentId= Convert.ToInt32(dr["subCommentId"]);
                     c.CommentId= Convert.ToInt32(dr["commentId"]);
                     c.CurrDate = (string)dr["currDate"];
                     c.UserId = Convert.ToInt32(dr["userId"]);

@@ -139,13 +139,15 @@ div:focus {
     background: radial-gradient(white, #c0c9ed);
 }
 
-.card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-    background: aquamarine;
-}
+    .card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        background: rgb(30,33,45);
+        background: linear-gradient(234deg, rgba(30,33,45,1) 0%, rgba(141,155,214,1) 50%, rgba(235,200,240,1) 100%);
+    }
 
 .cardSelected {
-    background: cadetblue;
+    background: rgb(30,33,45);
+    background: radial-gradient(circle, rgba(30,33,45,1) 0%, rgba(141,155,214,1) 65%, rgba(235,200,240,1) 100%);
 }
 
 /*.card::selection {
@@ -176,9 +178,10 @@ div:focus {
     background-color: #c0c9ed;
 }
 
-.card2:hover {
-    background-color: aquamarine;
-}
+    .card2:hover {
+        background: rgb(30,33,45);
+        background: linear-gradient(234deg, rgba(30,33,45,1) 0%, rgba(141,155,214,1) 50%, rgba(235,200,240,1) 100%);
+    }
 
 h4 {
     font-family: Tahoma;
@@ -469,11 +472,16 @@ p{
     color: black;
     border: 2px solid black;
 }
-.deleteEpisodeBtn {
-    font-size: 16px;
-    height: 30px;
-    float: left;
-}
+    #aboutBtn:hover {
+        background-color: #1e212d;
+        color: white;
+        border: 2px solid white;
+    }
+    .deleteEpisodeBtn {
+        font-size: 16px;
+        height: 30px;
+        float: left;
+    }
 .deleteEpisodeBtn:hover{
    color:red;
 

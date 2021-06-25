@@ -94,7 +94,7 @@ function postClubmMSuccessCB(ma) {
     alert("welcome to the gruop :)");
 
     str = `  <div class="wrapper">
-              <a id="`+ selectedVal + `href="#">to the forum</a>
+              <a id="`+ selectedVal + `href="comment.html">to the forum</a>
            </div> `;
     $("#episodesView").html(episodesList);
     $("#episodesView").append(str);

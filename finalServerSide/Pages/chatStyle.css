@@ -93,10 +93,11 @@ h4.chatCard-title {
     touch-action: auto;
     overflow: hidden !important;
     -ms-overflow-style: none;
-    background-color: #1e212d;
+    /*background-color: #1e212d;*/
+    background: rgb(30,33,45);
+    background: linear-gradient(234deg, rgba(30,33,45,1) 0%, rgba(141,155,214,1) 50%, rgba(235,200,240,1) 100%);
     width: 150%;
     margin-left: -28%;
-   
 }
 
 .media-chat {

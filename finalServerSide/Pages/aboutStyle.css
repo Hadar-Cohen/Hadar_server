@@ -96,10 +96,11 @@ body {
     margin: 2px;
     text-align: center;
 }
-.actor-card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-    background-color: red;
-}
+    .actor-card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        background: rgb(30,33,45);
+        background: linear-gradient(234deg, rgba(30,33,45,1) 0%, rgba(141,155,214,1) 50%, rgba(235,200,240,1) 100%);
+    }
 
 .actor-card > img {
     margin-bottom: .75rem;
@@ -155,11 +156,11 @@ body {
     border-radius: 25px;
 }
 
-.recommand-card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-    background-color: #b3c0f2;
-
-}
+    .recommand-card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        background: rgb(30,33,45);
+        background: linear-gradient(234deg, rgba(30,33,45,1) 0%, rgba(141,155,214,1) 50%, rgba(235,200,240,1) 100%);
+    }
 
 .recommand-card > img {/*rev-card >img*/
     border-radius: 25px;

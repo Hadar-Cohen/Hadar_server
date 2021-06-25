@@ -128,6 +128,8 @@ namespace finalServerSide.Models.DAL
                     c.UserName = (string)(dr["userName"]);
                     c.SeriesId = Convert.ToInt32(dr["seriesId"]);
                     c.Content = (string)(dr["content"]);
+                    c.Likes= Convert.ToInt32(dr["likes"]);
+                    c.Dislikes = Convert.ToInt32(dr["dislikes"]);
                     CommentsList.Add(c);
                 }
 
@@ -184,6 +186,65 @@ namespace finalServerSide.Models.DAL
                 }
 
             }
+        }
+
+        public int UpdateLikes(int commentId, int likes, int dislikes)
+        {
+            SqlConnection con;
+            SqlCommand cmd;
+            {
+                try
+                {
+                    con = connect("DBConnectionString"); // create the connection
+                }
+                catch (Exception ex)
+                {
+                    // write to log
+                    throw (ex);
+                }
+
+                String cStr = BuildUpdateCommand(commentId, likes, dislikes);      // helper method to build the insert string
+
+                cmd = CreateCommand(cStr, con);             // create the command
+
+                try
+                {
+                    int rowEffected = cmd.ExecuteNonQuery(); // execute the command
+                    return rowEffected;
+                }
+                catch (Exception ex)
+                {
+                    // write to log
+                    throw (ex);
+                }
+
+                finally
+                {
+                    if (con != null)
+                    {
+                        // close the db connection
+                        con.Close();
+                    }
+                }
+            }
+
+        }
+
+        //--------------------------------------------------------------------
+        // Build the Update command String
+        //--------------------------------------------------------------------
+        private String BuildUpdateCommand(int commentId, int likes, int dislikes)
+        {
+            String command;
+
+            //StringBuilder sb = new StringBuilder();
+            // use a string builder to create the dynamic string
+
+            //sb.AppendFormat(" SET [likes]=[likes] + " + addlikes);
+            String prefix = "UPDATE Comments_2021 SET [likes]=[likes] + (" + likes + "), [dislikes]=[dislikes] + (" + dislikes + ")";
+            String end = " WHERE commentId= " + commentId;
+            command = prefix + end;
+            return command;
         }
 
     }
