@@ -1,0 +1,353 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous">
+    </script>
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>-->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>-->
+
+    <link href="commentStyle.css" rel="stylesheet" />
+
+    <script>
+        $(document).ready(function () {
+            //Details about TVShow and the user:
+            s = JSON.parse(localStorage.series);
+            seriesId = s.seriesObj.Id;
+            user = JSON.parse(localStorage.user);
+            date = calcDay();
+            if (localStorage.profileSrc != undefined)
+                userProfile = JSON.parse(localStorage.profileSrc);
+            else
+                userProfile = "https://image.ibb.co/jw55Ex/def_face.jpg";
+
+            buttonsEvents();
+            showForum(seriesId);
+        });
+
+        function buttonsEvents() {
+            submit.addEventListener('click', function publishComment() {
+                let content = $("#contentText").val();
+                let comment = {
+                    currDate: date,
+                    userId: user.Id,
+                    userName: user.FirstName + " " + user.LastName,
+                    seriesId: seriesId,
+                    content: content
+                }
+                addComment(comment);
+            });
+        }
+
+        function openDialog() {
+            var dialogElem = document.getElementById("idDialog");
+            dialogElem.showModal();
+        }
+        function closeDialog() {
+            var dialogElem = document.getElementById("idDialog");
+            dialogElem.close();
+        }
+
+       /* str = "";*/
+        function showForum(seriesId) {
+            let api = "../api/Comments?seriesId=" + seriesId;
+            ajaxCall("GET", api, "", getSuccessCB, getErrorCB)
+        }
+        
+        
+        function getSuccessCB(commentsList) {
+            let str = "";
+            //commentsArr = []; i = 0;
+            for (const c of commentsList) {
+                //commentsArr[i] = c;
+                str += drawComment(c);
+                //i++;
+                //הפעלת פונקציה של GET
+                getSubComments(c.SeriesId, c.CommentId);
+            }
+            $("#forum").html(str);
+        }
+
+        function getErrorCB(err) {
+            alert("ERROR");
+            console.log(err);
+        }
+
+        function getSubComments(seriesId, commentId) {
+            let api = "../api/SubComments?seriesId=" + seriesId + "&commentId=" + commentId;
+            ajaxCall("GET", api, "", getSCSuccessCB, getSCErrorCB)
+        }
+
+        function getSCSuccessCB(subCommentsList) {
+             let str = "";
+            for (const c of subCommentsList) {
+                str += drawSubComment(c);
+            }
+        }
+
+        function getSCErrorCB(err) {
+            alert("ERROR");
+            console.log(err);
+        }
+        function calcDay() {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+
+            return today = mm + '/' + dd + '/' + yyyy;
+        }
+
+        function addComment(comment) {
+            ajaxCall("POST", "../api/Comments", JSON.stringify(comment), postCommentSuccess, postCommentError)
+        }
+        function postCommentSuccess(series) {
+            alert("Submitted to the server! success");
+            console.log(series);
+            showForum(series);
+        }
+
+        function postCommentError(err) {
+            alert("ERROR");
+            console.log(err);
+        }
+        function addSubComment(commId) {
+            subCommentContent = $('.reply')[1].value;
+            closeDialog();
+            
+            let subComment = {
+                commentId: commId,
+                currDate: date,
+                userId: user.Id,
+                userName: user.FirstName + " " + user.LastName,
+                seriesId: seriesId,
+                content: subCommentContent
+            }
+            console.log(subComment);
+            ajaxCall("POST", "../api/SubComments", JSON.stringify(subComment), postSCommentSuccess, postSCommentError);
+        }
+
+        function postSCommentSuccess(series) {
+            alert("Success!");
+            console.log(series);
+            showForum(series);
+        }
+
+        function postSCommentError(err) {
+            alert("error");
+            console.log(err);
+        }
+
+        function drawComment(comm) {
+            console.log(comm);
+            //classStyle = "";
+            //if (comm.subComment != null)
+            //    classStyle= `style= "margin-left: 10px";`
+
+            return `<div class="be-comment">
+                        <div class="be-img-comment">
+                            <a href="blog-detail-2.html">
+                                <img src="`+ userProfile +`" alt="" class="be-ava-comment">
+                            </a>
+                        </div>
+                        <div class="be-comment-content">
+                            <span class="be-comment-name">
+                                `+ comm.UserName + `
+                            </span>
+                            <span class="be-comment-time">
+                                <i class="fa fa-clock-o"></i>
+                                `+ comm.CurrDate + `
+                            </span>
+                            <p class="be-comment-text">
+                                `+ comm.Content + `
+                            </p>
+                            ` + drawLike(comm) + `
+                            <button id="replying" class="reply" onclick="openDialog()">Reply</button>
+                            <dialog id="idDialog">
+                                <label for="reply">Reply:</label>
+                                <br>
+                                <input type="text" class="reply" name="reply">
+                                <br>
+                                <button id="`+ comm.CommentId + `" class="close" onclick="addSubComment(` + comm.CommentId +`)">Close this Dialog</button>
+                            </dialog>
+                        </div>
+                    </div>
+                    <div class="`+ comm.CommentId + `"></div>`
+                    
+        }
+
+        function drawLike(comm) {
+            return `
+                <i id="like" onclick="toggleLike(this, 'dislike', ` + comm.CommentId + `, 'fa-thumbs-up', 'fa-thumbs-down', updateCommentLikes)" class="fa fa-thumbs-o-up"></i>
+                <i id="dislike" onclick="toggleLike(this, 'like',` + comm.CommentId + `, 'fa-thumbs-down', 'fa-thumbs-up', updateCommentDislikes)" class="fa fa-thumbs-o-down"></i>
+            `;
+        }
+
+        function toggleLike(x, otherThumbId, commentId, myClass, otherClass, updateCallback) {
+            let y = document.getElementById(otherThumbId);
+            if (y.classList.contains(otherClass)) {
+                y.click();
+            }
+
+            let numberOfLikes = 0;
+            x.classList.toggle(myClass);
+
+            if (x.classList.contains(myClass)) {
+                numberOfLikes++;
+            } else {
+                numberOfLikes--;
+            }
+            updateCallback(commentId, numberOfLikes);
+        }
+
+        function updateCommentLikes(commentId, number) {
+            alert("change " + commentId + " likes by " + number);
+            //update comment with this commentId likes on db ny number 
+        }
+
+        function updateCommentDislikes(commentId, number) {
+            alert("change " + commentId + " dislikes by " + number);
+            //update comment with this commentId dislikes on db ny number 
+        }
+
+        function drawSubComment(comm) {
+            console.log(comm);
+            return `<div class="be-comment" style= "margin-left: 10px;">
+                        <div class="be-img-comment">
+                            <a href="blog-detail-2.html">
+                                <img src="`+ userProfile +`" alt="" class="be-ava-comment">
+                            </a>
+                        </div>
+                        <div class="be-comment-content">
+                            <span class="be-comment-name">
+                                `+ comm.UserName + `
+                            </span>
+                            <span class="be-comment-time">
+                                <i class="fa fa-clock-o"></i>
+                                `+ comm.CurrDate + `
+                            </span>
+                            <p class="be-comment-text">
+                                `+ comm.Content + `
+                            </p>
+                            <button id="replying" class="reply" onclick="openDialog()">Reply</button>
+                            <dialog id="idDialog">
+                                <label for="reply">Reply:</label>
+                                <br>
+                                <input type="text" class="reply" name="reply">
+                                <br>
+                                <button class="close" onclick="drawSubComment(`+ comm.CommentId + `)">Close this Dialog</button>
+                            </dialog>
+                        </div>
+                    </div>`
+        }
+    </script>
+</head>
+<body>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <div class="container">
+        <div id="forum" class="be-comment-block">
+            <h1 class="comments-title">Comments (3)</h1>
+            <!--  -->
+            <!--<dialog id="idDialog">
+                <label for="reply">Reply:</label>
+                <br>
+                <input type="text" id="reply" name="reply">
+                <br>
+                <button id="replying" class="reply" onclick='drawComment(`+ comm.CommentId + `)'>Reply</button>
+                <button onclick="closeDialog()">Close this Dialog</button>
+            </dialog>-->
+            <!--<div class="be-comment">
+                <div class="be-img-comment">
+                    <a href="blog-detail-2.html">
+                        <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" class="be-ava-comment">
+                    </a>
+                </div>
+                <div class="be-comment-content">
+                    <span class="be-comment-name">
+                        Ravi Sah
+                    </span>
+                    <span class="be-comment-time">
+                        <i class="fa fa-clock-o"></i>
+                        May 27, 2015 at 3:14am
+                    </span>
+                    <p class="be-comment-text">
+                        Pellentesque gravida tristique ultrices.
+                        Sed blandit varius mauris, vel volutpat urna hendrerit id.
+                        Curabitur rutrum dolor gravida turpis tristique efficitur.
+                    </p>
+                    <button class="reply">Reply</button>
+                </div>
+            </div>-->
+            <!--  -->
+            <!--<div class="be-comment">
+                <div class="be-img-comment">
+                    <a href="blog-detail-2.html">
+                        <img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" class="be-ava-comment">
+                    </a>
+                </div>
+                <div class="be-comment-content">
+                    <span class="be-comment-name">
+                        <a href="blog-detail-2.html">Phoenix, the Creative Studio</a>
+                    </span>
+                    <span class="be-comment-time">
+                        <i class="fa fa-clock-o"></i>
+                        May 27, 2015 at 3:14am
+                    </span>
+                    <p class="be-comment-text">
+                        Nunc ornare sed dolor sed mattis. In scelerisque dui a arcu mattis, at maximus eros commodo. Cras magna nunc, cursus lobortis luctus at, sollicitudin vel neque. Duis eleifend lorem non ant. Proin ut ornare lectus, vel eleifend est. Fusce hendrerit dui in turpis tristique blandit.
+                    </p>
+                </div>
+            </div>
+            <div class="be-comment">
+                <div class="be-img-comment">
+                    <a href="blog-detail-2.html">
+                        <img src="https://bootdey.com/img/Content/avatar/avatar3.png" alt="" class="be-ava-comment">
+                    </a>
+                </div>
+                <div class="be-comment-content">
+                    <span class="be-comment-name">
+                        <a href="blog-detail-2.html">Cüneyt ŞEN</a>
+                    </span>
+                    <span class="be-comment-time">
+                        <i class="fa fa-clock-o"></i>
+                        May 27, 2015 at 3:14am
+                    </span>
+                    <p class="be-comment-text">
+                        Cras magna nunc, cursus lobortis luctus at, sollicitudin vel neque. Duis eleifend lorem non ant
+                    </p>
+                </div>
+            </div>-->
+        </div>
+            <!--<form class="form-block">-->
+                <div class="row">
+                    <!--<div class="col-xs-12 col-sm-6">-->
+                        <!--<div class="form-group fl_icon">
+                            <div class="icon"><i class="fa fa-user"></i></div>
+                            <input class="form-input" type="text" placeholder="Your name">
+                        </div>
+                    </div>-->
+                    <!--<div class="col-xs-12 col-sm-6 fl_icon">
+                        <div class="form-group fl_icon">
+                            <div class="icon"><i class="fa fa-envelope-o"></i></div>
+                            <input class="form-input" type="text" placeholder="Your email">
+                        </div>
+                    </div>-->
+
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <textarea id="contentText" class="form-input" required="" placeholder="Your text"></textarea>
+                        </div>
+                    </div>
+                    <button id="submit"class="btn btn-primary pull-right">Submit</button>
+                </div>
+            <!--</form>-->
+
+    </div>
+</body>
+</html>

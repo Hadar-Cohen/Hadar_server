@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous">
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=AIzaSyCCwWKnfacKHx3AVajstMk6Ist1VUoNt9w"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script>
+    <link href="editUser.css" rel="stylesheet" />
+
+
+
+    <script>
+        $(document).ready(function () {
+            //Get the user from the local storage (with id)
+            let user = JSON.parse(localStorage.user);
+            userId = user.Id;
+
+            //get the details and render it to the text box;
+            getUserData();
+            addressAutoComplete()
+            $("#pForm").submit(submit); // bind the submit event to a function called addUser
+        });
+
+        function addressAutoComplete() {
+            let searchInput = 'search_input';
+            var autocomplete;
+            autocomplete = new google.maps.places.Autocomplete((document.getElementById(searchInput)), {
+                types: ['geocode'],
+
+            });
+            google.maps.event.addListener(autocomplete, 'place_changed', function () {
+                var near_place = autocomplete.getPlace();
+                document.getElementById('loc_lat').value = near_place.geometry.location.lat();
+                document.getElementById('loc_long').value = near_place.geometry.location.lng();
+            });
+        }
+        function getUserData() {
+            let api = "../api/Users?id=" + userId;
+            ajaxCall("GET", api, "", getSuccessCB, getErrorCB)
+        }
+        function getSuccessCB(user) {
+            console.log(user.Id);
+            renderDataToTB(user);
+        }
+        function getErrorCB(err) {
+            if (err.status == 404)
+                console.log();
+        }
+        function renderDataToTB(user) {
+            $('#fnameTB').val(user.FirstName);
+            $('#lnameTB').val(user.LastName);
+            $('#emailTB').val(user.Email);
+            $('#passwordTB').val(user.Password);
+            $('#phoneTB').val(user.PhoneNum);
+            $('#gender').val(user.Gender);
+            $('#yearOfBirthTB').val(user.YearOfBirth);
+            $('#genreTB').val(user.Genre);
+            $('#search_input').val(user.Address);
+        }
+        function updateUser() {
+            user = {
+                Id: userId,
+                FirstName: $('#fnameTB').val(),
+                LastName: $('#lnameTB').val(),
+                Email: $('#emailTB').val(),
+                Password: $('#passwordTB').val(),
+                PhoneNum: $('#phoneTB').val(),
+                Gender: $('#gender').val(),
+                YearOfBirth: $('#yearOfBirthTB').val(),
+                Genre: $('#genreTB').val(),
+                Address: $('#search_input').val()
+            }
+
+            let api = "../api/Users";
+            ajaxCall("PUT", api, JSON.stringify(user), updateSuccess, updateError)
+        }
+        function updateSuccess(userData) {
+            swal("Updated Successfuly!", "Great Job", "success");
+            clearForm();
+        }
+        // this function is activated in case of a failure
+        function updateError(err) {
+            swal("Error: " + err);
+        }
+
+        function submit() {
+            updateUser();
+            return false;
+        }
+
+        function clearForm() {
+            document.getElementById("pForm").reset();
+        }
+        function backHome() {
+            clearForm();
+            window.location.replace("homePage.html");
+        }
+
+    </script>
+</head>
+<body>
+    <center>
+        <form id="pForm" class="modal-content">
+            <div class="container">
+                <center>
+                    <h1>Update Your Details</h1>
+                    <p id="signUpTitle">You can change your account details</p>
+                </center>
+                <hr>
+                <div class="form-group">
+                    <label for="fnameTB">First Name</label>
+                    <input type="text" class="form-control" id="fnameTB" placeholder="Enter your first name" required>
+                </div>
+                <div class="form-group">
+                    <label for="lnameTB">Last Name</label>
+                    <input type="text" class="form-control" id="lnameTB" placeholder="Enter your last name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="emailTB"> email</label>
+                    <input type="text" class="form-control" placeholder="Enter the email" id="emailTB"
+                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                           oninvalid="this.setCustomValidity('Invalid mail format')"
+                           oninput="this.setCustomValidity('')" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label for="passwordTB">password</label>
+                    <input type="password" class="form-control" placeholder="Enter the password" id="passwordTB"
+                           pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{6,}$"
+                           oninvalid="this.setCustomValidity('Must contain at least one number and one uppercase and lowercase letter, and at least 6 or more characters')"
+                           oninput="this.setCustomValidity('')" required />
+                </div>
+                <div class="form-group">
+                    <label for="phoneTB">phone</label>
+                    <input type="text" class="form-control" placeholder="Enter your phone number" id="phoneTB"
+                           pattern="^[0][5][0|2|3|4|5|9]{1}[-]{0,1}[0-9]{7}$"
+                           oninvalid="this.setCustomValidity('0dd-ddddddd')"
+                           oninput="this.setCustomValidity('')" required />
+                </div>
+                <div class="form-group">
+                    <label for="gender"> select your gender:</label>
+                    <select id="gender" name="gender" required>
+                        <option value="other">Other</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="yearOfBirthTB">year of birth</label>
+                    <input type="number" class="form-control" id="yearOfBirthTB" placeholder="Enter your year of birth" min="1920" max="2020" required />
+                </div>
+                <div class="form-group">
+                    <label for="genreTB">select genre:</label>
+                    <select id="genreTB" name="genre">
+                        <option value="select">select genre</option>
+                        <option value="Action">Action</option>
+                        <option value="Adventure">Adventure</option>
+                        <option value="Animation">Animation</option>
+                        <option value="Biography">Biography</option>
+                        <option value="Comedy">Comedy</option>
+                        <option value="Crime">Crime</option>
+                        <option value="Drama">Drama</option>
+                        <option value="Horror">Horror</option>
+                        <option value="Music">Music</option>
+                        <option value="Mystery">Mystery</option>
+                        <option value="Romance">Romance</option>
+                        <option value="Thriller">Thriller</option>
+                        <option value="War">War</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Historical">Historical</option>
+                        <option value="Touching">Touching</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="search_input">Address:</label>
+                    <input type="text" id="search_input" placeholder="Address" required>
+                    <input type="hidden" id="loc_lat" />
+                    <input type="hidden" id="loc_long" />
+                </div>
+                <br />
+                <div class="clearfix">
+                    <button id="submitBTN" type="submit" class="signupbtn">Update</button>
+                    <button id="cancelUpdate" type="button" class="cancelbtn" onclick="backHome()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </center>
+</body>
+</html>

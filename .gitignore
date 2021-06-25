@@ -68,6 +68,7 @@ StyleCopReport.xml
 *.pch
 *.pdb
 *.ipdb
+*.config
 *.pgc
 *.pgd
 *.rsp

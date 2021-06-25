@@ -1,0 +1,380 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous">
+    </script>
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=AIzaSyCCwWKnfacKHx3AVajstMk6Ist1VUoNt9w"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+    <link href="aboutStyle.css" rel="stylesheet" />
+    <link href="navbarStyle.css" rel="stylesheet" />
+    <link href="myStyle.css" rel="stylesheet" />
+    <script src="../Scripts/signUp.js"></script>
+    <!--<script src="../Scripts/insertHome.js"></script>-->
+    <link href="homePage.css" rel="stylesheet" />
+    <script src="../Scripts/navbarFunc.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+
+            key = "90f77ef6862d870eb9f5fff3bc587100";
+
+            url = "https://api.themoviedb.org/";
+            imagePath = "https://image.tmdb.org/t/p/w500/";
+            // 64467
+            // 1416
+            //https://api.themoviedb.org/3/tv/1416/season/0/episode/64467?api_key=1c107f2bd2f3fc2aee24aa4f2f8d8647&language=en-US
+            method = "3/tv/";
+            api_key = "api_key=" + key;
+
+            navBarVisability()
+            getTopRated();  // Get similars Tv show
+            getMostViewed();
+            getMostViewedEpisodes();
+            getGenres()
+
+        });
+        ////////////////////////////////////top rated from the movie DB api - //////////////////////////////////////////////
+        function getTopRated() {
+            topRatedList = "<div class='container'>";
+            topRatedList += "<div class='row'>";
+
+            let apiCall = url + "3/trending/tv/week?" + api_key;
+            ajaxCall("GET", apiCall, "", getSuccesstopRated, errortopRated);
+        }
+
+        r = 0; //index in result array that contain all the tv shows in the TMDB services
+        topRatedArr = [];//local arrey to render and play onclick function
+        function getSuccesstopRated(topRated) {
+            topRatedArr = topRated.results;
+            topRatedArr.forEach(TVShow => {
+                topRatedList += drawtopRated(TVShow);
+                r++;
+            });
+            topRatedList += "</div></div>";
+            $("#topRated").html(topRatedList);
+            r = 0;
+
+        }
+        function errortopRated(err) {
+            console.log(err);
+        }
+        function drawtopRated(TVShow) {
+            console.log(TVShow);
+            let stars = 5;
+            let popularity = TVShow.popularity;
+            switch (true) {
+                case (popularity < 40):
+                    stars = 1
+                    break;
+                case (popularity < 60):
+                    stars = 2
+                    break;
+                case (popularity < 200):
+                    stars = 3
+                    break;
+                case (popularity < 400):
+                    stars = 4
+                    break;
+            }
+            str = "";
+            str = `<div class='recommand-card' onclick = 'showAbout(topRatedArr[` + r + `])'>
+                           <img src='` + imagePath + TVShow.poster_path + `'>
+                           <h4><b>` + TVShow.name + `</b></h4>
+                           <img class='starsPopularity' src= '../images/` + stars + `stars.png'/></div>`
+            return str;
+        }
+
+        ///////////////////////////////////////most view according awere DB ///////////////////////////////////////////////////
+        ////////////////////////////////////// Seriess ///////////////////////////////////////////////////
+
+        function getMostViewed() {
+            let api = "../api/Seriess";
+            ajaxCall("GET", api, "", getSuccessMostViewed, errorMostViewed);
+        }
+
+        r = 0; //index in result array that contain all the tv shows in the TMDB services
+        mostViewedArr = [];//local arrey to render and play onclick function
+
+        function getSuccessMostViewed(topV) {
+            mostViewedArr = topV;////
+            mostViewedList = "<div style= 'display:flex; justify-content:center;' class='row'>";
+            while (r < 8) {
+                mostViewedList += drawMostViewed(topV[r]);
+                r++;
+            }
+            mostViewedList += "</div>";
+            $("#mostViewed").html(mostViewedList);
+            r = 0;
+        }
+
+        function errorMostViewed(err) {
+            console.log(err);
+        }
+
+        function drawMostViewed(TVShow) {
+            console.log(TVShow);
+            let stars = 5;
+            let popularity = TVShow.Popularity;
+            switch (true) {
+                case (popularity < 40):
+                    stars = 1
+                    break;
+                case (popularity < 60):
+                    stars = 2
+                    break;
+                case (popularity < 200):
+                    stars = 3
+                    break;
+                case (popularity < 400):
+                    stars = 4
+                    break;
+            }
+            str = "";
+            str = `<div class='recommand-card' onclick = 'showAboutFronOurWeb(mostViewedArr[` + r + `])'>
+                           <img src='`+ TVShow.Poster_path + `'>
+                           <h4><b>` + TVShow.Name + `</b></h4>
+                           <img class='starsPopularity' src= '../images/` + stars + `stars.png'/></div>`
+            return str;
+        }
+
+        ////////////////////////////////////// Episodes ///////////////////////////////////////////////////
+        function getMostViewedEpisodes() {
+            let api = "../api/Episodes";
+            ajaxCall("GET", api, "", getSuccessMostViewedEpisodes, errorMostViewedEpisodes);
+        }
+        r = 0; //index in result array that contain all the tv shows in the TMDB services
+        mostViewedEpisodesArr = [];//local arrey to render and play onclick function
+
+        function getSuccessMostViewedEpisodes(topV) {
+            mostViewedEpisodesArr = topV;/////
+            mostViewedEpisodesList = "<div style= 'display:flex; justify-content:center;' class='row'>";
+
+            while (r < 8) {
+                mostViewedEpisodesList += drawMostViewedEpisodes(topV[r]);
+                r++;
+            }
+            mostViewedEpisodesList += "</div>";
+            $("#mostViewedEpisodes").html(mostViewedEpisodesList);
+            r = 0;
+        }
+
+        function errorMostViewedEpisodes(err) {
+            console.log(err);
+        }
+
+        function drawMostViewedEpisodes(TVShow) {
+            str = "";
+            str = `<div class='recommand-card'>
+                           <img src='`+ TVShow.ImageURL + `'>
+                           <h5><b>` + TVShow.SeriesName + "</b><br>Season" + TVShow.SeasonNum + `</h5>
+                           <h5>` + TVShow.EpisodeName + `</h5></div>`
+            return str;
+        }
+
+
+        //////////////////////////////////////////search according genre - /////////////////////////////////////////////////////////
+        function getGenres() {
+            genresList = "<div> <select id='genre' onchange=showSeriesAccoGenre(this.value)>";
+            genresList += "<option value=" + null + "> select </option>";
+
+            let apiCall = url + "3/genre/tv/list?" + api_key;
+            ajaxCall("GET", apiCall, "", getSuccessGenres, errorGenres);
+        }
+
+        r = 0; //index in result array that contain all the tv shows in the TMDB services
+        genresArr = [];//local arrey to render and play onclick function
+        function getSuccessGenres(genre) {
+            genresArr = genre.genres;
+            genresArr.forEach(gan => {
+                genresList += drawGenres(gan);
+                r++;
+            });
+            genresList += "</select></div>";
+            $("#genreSearch").html(genresList);
+            r = 0;
+
+        }
+        function errorGenres(err) {
+            console.log(err);
+        }
+        function drawGenres(genre) {
+            console.log(genre);
+            str = "";
+            str += "<option value=" + genre.id + ">" + genre.name + "</option>";
+            // str = `<button id=` + genre.id +` class="button button5">`+genre.name+`</button>`
+            return str;
+        }
+        /////////////
+        function showSeriesAccoGenre(ganerId) {
+            seriesAccoGenreList = "<div class='container'>";
+            seriesAccoGenreList += "<div class='row'>";
+
+
+            let apiCall = url + "3/discover/tv?" + api_key + "&sort_by=popularity.desc&with_genres=" + ganerId;
+            ajaxCall("GET", apiCall, "", getSuccessTVShowGenres, errorGenres);
+        }
+        r = 0; //index in result array that contain all the tv shows in the TMDB services
+        seriesAccoGenreArr = [];//local arrey to render and play onclick function
+        function getSuccessTVShowGenres(seriess) {
+            seriesAccoGenreArr = seriess.results;
+            seriesAccoGenreArr.forEach(TVShow => {
+                seriesAccoGenreList += drawAccoGenre(TVShow);
+                r++;
+            });
+            seriesAccoGenreList += "</div></div>";
+            $("#seriesAccoGenre").html(seriesAccoGenreList);
+            r = 0;
+            window.scrollTo(0, document.body.scrollHeight);
+
+        }
+        function drawAccoGenre(TVShow) {
+            console.log(TVShow);
+            let stars = 5;
+            let popularity = TVShow.popularity;
+            switch (true) {
+                case (popularity < 40):
+                    stars = 1
+                    break;
+                case (popularity < 60):
+                    stars = 2
+                    break;
+                case (popularity < 200):
+                    stars = 3
+                    break;
+                case (popularity < 400):
+                    stars = 4
+                    break;
+            }
+            str = "";
+            str = `<div class='recommand-card' onclick = 'showAbout(seriesAccoGenreArr[` + r + `])'>
+                           <img src='` + imagePath + TVShow.poster_path + `'>
+                           <h4><b>` + TVShow.name + `</b></h4>
+                           <img class='starsPopularity' src= '../images/` + stars + `stars.png'/></div>`
+
+            return str;
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        function showAbout(tvShow) {
+            console.log(tvShow);
+            storeToLS(tvShow);
+            window.location.replace("insert_signup.html");
+            // location.reload();
+        }
+        //Store to Local Storage the tvShow that was clicked
+        function storeToLS(tvShow) {
+            seriesObj = {
+                Id: tvShow.id,
+                First_air_date: tvShow.first_air_date,
+                Name: tvShow.name,
+                Origin_country: tvShow.origin_country,
+                Original_language: tvShow.original_language,
+                Overview: tvShow.overview,
+                Popularity: tvShow.popularity,
+                Poster_path: imagePath + tvShow.poster_path
+            }
+            extras = {
+
+                Backdrop_path: imagePath + tvShow.backdrop_path,
+                Genre_ids: tvShow.genre_ids
+
+            }
+            totalSeries = {
+                seriesObj,
+                extras
+            }
+            localStorage.setItem("series", JSON.stringify(totalSeries));
+        }
+
+        ///////////in our prij we need Upper letters - property//////////
+        function showAboutFronOurWeb(tvShow) {
+            console.log(tvShow);
+            storeToLsFromSeriesDB(tvShow);
+            window.location.replace("insert_signup.html");
+            // location.reload();
+        }
+        ///////////in our proj we need Upper letters - property//////////
+        function storeToLsFromSeriesDB(tvShow) {
+            seriesObj = {
+                Id: tvShow.Id,
+                First_air_date: tvShow.First_air_date,
+                Name: tvShow.Name,
+                Origin_country: tvShow.Origin_country,
+                Original_language: tvShow.Original_language,
+                Overview: tvShow.Overview,
+                Popularity: tvShow.Popularity,
+                Poster_path: tvShow.Poster_path
+            }
+            extras = {
+
+                Backdrop_path: imagePath + tvShow.backdrop_path,
+                Genre_ids: tvShow.genre_ids
+
+            }
+            totalSeries = {
+                seriesObj,
+                extras
+            }
+            localStorage.setItem("series", JSON.stringify(totalSeries));
+        }
+
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-inverse ">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">The Movie H & H</a>
+            </div>
+            <ul class="nav navbar-nav justify-content-between">
+                <li><div id="userName"></div></li>
+                <li><a class="toblack" href="homePage.html"> Home</a></li>
+                <li><a class="toblack" href="insert_signup.html">Search</a></li>
+                <li><a class="toblack" id="view" href="view.html">View</a></li>
+                <li><a class="toblack" id="admin" href="admin.html">Admin</a></li>
+
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li><a onclick="signUpClick()" id="signUp" class="toblack"><span class="glyphicon glyphicon-user singupc"></span> Sign Up</a></li>
+                <li><a id="login" href="login.html" class="toblack"><span class="glyphicon glyphicon-log-in"></span>  Login</a></li>
+                <li><a href="editUser.html" id="editUser" class="toblack"><span class="glyphicon glyphicon-user singupc"></span>  Edit Profile</a></li>
+                <li><a onclick="exitFunc()" id="exit" class="toblack"><span class="glyphicon glyphicon-log-in "></span>  Exit</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <span id="webName">H & H </span>
+    <div><a href="insert_signup.html"><img id="toSerchImg" src="../images/search.jpeg" /></a></div>
+    <div class='title'><a>TOP RATED</a></div>
+    <div id="topRated"></div>
+    <div class='title'><a>Most viewed on our website</a></div>
+    <div id="mostViewed"></div>
+    <div class='title'><a>The most watched episodes on our website</a></div>
+    <div id="mostViewedEpisodes"></div>
+    <div class='title'><a>Search by genre</a></div>
+    <div id="genreSearch"> </div>
+    <div id="seriesAccoGenre"></div>
+
+
+
+
+
+</body>
+</html>

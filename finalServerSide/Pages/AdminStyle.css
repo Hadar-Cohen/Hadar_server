@@ -1,0 +1,104 @@
+﻿#btnDataTable{
+    margin: 5px; 
+}
+.delete {
+    background-color: #ec4040;
+    border: 1px solid #ec4040;
+}
+.delete:hover {
+    background-color: red;
+    border: 1px solid red;
+}
+#ph {
+    height: 30%;
+    /*text-align:center;*/
+}
+td {
+    border: 1px dashed grey;
+}
+th {
+    /*text-align: center;*/
+}
+td > img {
+    display: block;
+    margin:auto;
+    text-align: center;
+  
+}
+#ph {
+    padding: 10px;
+}
+.paginate_button :hover
+{
+     background-color:aliceblue;
+}
+td > p > .overview{
+    text-align:left;
+    direction:ltr;
+}
+
+
+
+
+.btn-group {
+    /*margin-top: 100px;*/
+    display: flex; /* Make the buttons appear below each other */
+    justify-content: center;
+}
+
+    .btn-group button {
+        background-color: #b3c0f2; /* Green background */
+        border: 1px solid #1e212d; /* Green border */
+        /*color: white;*/ /* White text */
+        padding: 15px 24px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        width: 100%; /* Set a width if needed */
+        font-weight: bold;
+       /* margin-top: 10px;*/
+    }
+
+    .btn-group button:not(:last-child) {
+        border-bottom: none; /* Prevent double borders */
+    }
+
+    /* Add a background color on hover */
+        .btn-group button:hover {
+            background-color: #565e7d;
+            color: white;
+        }
+.rowDivs {
+    display: flex; /* Make the buttons appear below each other */
+    justify-content: center;
+    margin-top: 90px;
+    margin-bottom:90px;
+}
+    .rowDivs > div {
+        height: 150px;
+        width: 250px;
+        border-radius: 10px;
+        opacity: 0.8;
+        float: left;
+        margin-left: 120px;
+    }
+#greenDiv {
+    background-color: purple;
+}
+
+#redDiv {
+    background-color: red;
+}
+
+#pinkDiv {
+    background-color: pink;
+}
+
+#blueDiv {
+    background-color: deepskyblue;
+}
+.MostViewed {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 20px;
+    color: aliceblue;
+}
+ 

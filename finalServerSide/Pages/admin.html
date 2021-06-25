@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>DB H&H</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+    <script src="../scripts/ajaxCalls.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link href="myStyle.css" rel="stylesheet" />
+
+    <link href="AdminStyle.css" rel="stylesheet" />
+    <link href="navbarStyle.css" rel="stylesheet" />
+    <script src="../Scripts/navbarFunc.js"></script>
+    <script src="../Scripts/admin.js"></script>
+    <script>
+        $(document).ready(function () {
+            getMostViewedS();
+            getMostViewedE();
+            getMostActiveUser();
+            adminDatails();
+        });
+///////////////////////////////////// get the Most popular series in our DB//////////////////////////////////////////////////////
+        function getMostViewedS() {
+            let api = "../api/Seriess";
+            ajaxCall("GET", api, "", getSuccessMostViewedS, errorMostViewed);
+        }
+
+        function getSuccessMostViewedS(topV) {
+            mostViewedList = "<p class='MostViewed'> The most popular series <br><br><b>" + topV[0].Name + "</b></p>";
+            $("#redDiv").html(mostViewedList);
+        }
+ ///////////////////////////////////// get the Most popular episode in our DB//////////////////////////////////////////////////////
+
+        function getMostViewedE() {
+            let api = "../api/Episodes";
+            ajaxCall("GET", api, "", getSuccessMostViewedE, errorMostViewed);
+        }
+
+        function getSuccessMostViewedE(topV) {
+            mostViewedList = "<p class='MostViewed'> The most popular Episode <br><br><b>" + topV[0].EpisodeName + "</b> in " + topV[0].SeriesName+"</p>";
+            $("#blueDiv").html(mostViewedList);
+        }
+        function getMostActiveUser() {
+            let api = "../api/Comments";
+            ajaxCall("GET", api, "", getSuccessMostActiveUser, errorMostViewed);
+        }
+ ///////////////////////////////////// get the id of Most Active User in our DB//////////////////////////////////////////////////////
+
+        function getSuccessMostActiveUser(userId) {
+            let api = "../api/Users?id=" + userId;
+            ajaxCall("GET", api, "", getSuccessMostActiveUserDetails, errorMostViewed);
+        }
+ ///////////////////////////////////// get the Details of Most Active User in our DB//////////////////////////////////////////////////////
+        function getSuccessMostActiveUserDetails(user) {
+            mostViewedList = "<p class='MostViewed'> The most responses <br><br><b>" + user.FirstName + " " + user.LastName + "</b><br>id: " + user.Id+"</p>";
+            $("#greenDiv").html(mostViewedList);
+        }
+
+        function errorMostViewed(err) {
+            console.log(err);
+        }
+        function adminDatails() {
+          
+        }
+    </script>
+
+</head>
+<body>
+    <nav class="navbar navbar-inverse ">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">The Movie H & H</a>
+            </div>
+            <ul class="nav navbar-nav justify-content-between">
+                <li><div id="profile"></div></li>
+                <li><div id="userName"></div></li>
+                <li><a class="toblack" href="homePage.html"> Home</a></li>
+                <li><a class="toblack" href="insert_signup.html">Search</a></li>
+                <li><a class="toblack" id="view" href="view.html">View</a></li>
+                <li><a class="toblack" id="admin" href="admin.html">Admin</a></li>
+
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li><a onclick="signUpClick()" id="signUp" class="toblack"><span class="glyphicon glyphicon-user singupc"></span> Sign Up</a></li>
+                <li><a id="login" href="login.html" class="toblack"><span class="glyphicon glyphicon-log-in"></span>  Login</a></li>
+                <li><a href="editUser.html" id="editUser" class="toblack"><span class="glyphicon glyphicon-user singupc"></span>  Edit Profile</a></li>
+                <li><a onclick="exitFunc()" id="exit" class="toblack"><span class="glyphicon glyphicon-log-in "></span>  Exit</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div style="text-align:center">
+        <h1 style="color:aliceblue"> Hello Admin!</h1> <h3 style="color:aliceblue"> <br /> You can remove Users<br /> And see how mach save spacific apisodes and seriess<br /> GOOD LACK!</h3>
+    </div>
+
+    <div class="rowDivs">
+        <div id="redDiv"></div>
+        <div id="blueDiv"></div>
+        <!--</div>-->
+        <!--<div class="rowDivs">-->
+        <div id="greenDiv"></div>
+        <div id="pinkDiv"></div>
+    </div>
+    <center>
+        <div class="btn-group">
+            <button id="showUsers">SHOW ALL USERS</button>
+            <button id="showSeries">SHOW ALL Series</button>
+            <button id="showEpisodes">SHOW ALL Episodes</button>
+        </div>
+    </center>
+    <div id="ph"></div>
+    <!--<div id="seriesTableph"></div>-->
+
+</body>
+</html>
