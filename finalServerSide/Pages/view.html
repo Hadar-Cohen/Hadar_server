@@ -7,11 +7,11 @@
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link href="chatStyle.css" rel="stylesheet" />
+    <!--<link href="chatStyle.css" rel="stylesheet" />-->
     
 
     <script src="../Scripts/ajaxCalls.js"></script>
-    <link href="modalView.css" rel="stylesheet" />
+    <!--<link href="modalView.css" rel="stylesheet" />-->
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-analytics.js"></script>
@@ -31,8 +31,8 @@
       
         .wrapper {
             color:white;
-            position: fixed;
-            top: 25%;
+            position: absolute;
+            top: 12%;
             left: 20%;
             transform: translate(-50%, -50%);
         }
@@ -59,7 +59,7 @@
         $(document).ready(function () {
             imagePath = "https://image.tmdb.org/t/p/w500/";
             navBarVisability();
-            modal();
+            /*modal();*/
 
             $("#phView").html("");
             str = "<select id='series' onchange=showEpisodes(this)>";
@@ -80,7 +80,7 @@
     </script>
     <script src="../Scripts/navbarFunc.js"></script>
     <script src="../Scripts/view.js"></script>
-    <script src="../Scripts/viewChat.js"></script>
+    <!--<script src="../Scripts/viewChat.js"></script>-->
 
 </head>
 <body>
@@ -113,7 +113,10 @@
             <a onclick="parent.LC_API.open_chat_window();return false;" href="#" class="link">Live Chat</a>
         </div>
     </div>-->
-    <div id="title">My Series</div>
+    <div id="myheader">
+        <div id="forum"></div>
+        <div id="title">My Series</div>
+    </div>
     <div id="phView">
         <select id="series" onchange='showEpisodes(this)'></select>
     </div>

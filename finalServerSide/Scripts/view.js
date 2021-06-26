@@ -86,7 +86,7 @@ function getClubmMSuccessCB(ma) {
               <a id="`+ selectedVal + `" onclick="commentP()">to the chat</a>
            </div> `;
     }
-    $("#episodesView").append(str);
+    $("#forum").html(str);
 }
 
 
@@ -94,10 +94,10 @@ function postClubmMSuccessCB(ma) {
     alert("welcome to the gruop :)");
 
     str = `  <div class="wrapper">
-              <a id="`+ selectedVal + `href="comment.html">to the forum</a>
+              <a id="`+ selectedVal + `" href="comment.html">to the forum</a>
            </div> `;
     $("#episodesView").html(episodesList);
-    $("#episodesView").append(str);
+    $("#forum").html(str);
 }
 function commentP() {
     window.location.replace("comment.html");

@@ -173,7 +173,6 @@ div:focus {
     padding: 20px;
     float: left;
     max-width: 250px;
-    height: 20vw;
     width: 500px; /*from td*/
     background-color: #c0c9ed;
 }
@@ -228,7 +227,6 @@ td {
     color: white;
     font-family: Fantasy;
     margin-bottom: 10px;
-    position:relative;
 }
 
 

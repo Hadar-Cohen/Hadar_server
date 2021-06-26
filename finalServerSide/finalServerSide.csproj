@@ -161,6 +161,7 @@
     <Compile Include="Controllers\SeriessController.cs" />
     <Compile Include="Controllers\SubCommentsController.cs" />
     <Compile Include="Controllers\TotalsController.cs" />
+    <Compile Include="Controllers\UserLikesCommController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -174,11 +175,13 @@
     <Compile Include="Models\DAL\SubCommentDBServices.cs" />
     <Compile Include="Models\DAL\TotalDBServices.cs" />
     <Compile Include="Models\DAL\UserDataServices.cs" />
+    <Compile Include="Models\DAL\UserLikeCommDBServices.cs" />
     <Compile Include="Models\Episode .cs" />
     <Compile Include="Models\Series.cs" />
     <Compile Include="Models\SubComment.cs" />
     <Compile Include="Models\Total.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\UserLikesComment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

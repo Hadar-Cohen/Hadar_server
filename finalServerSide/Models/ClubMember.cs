@@ -27,7 +27,7 @@ namespace finalServerSide.Models
         public int Insert(int seriesId, int userId)
         {
             ClubMemderDB us = new ClubMemderDB();
-            return us.Insert(seriesId,userId); //return 1/-1;
+            return us.Insert(seriesId, userId); //return 1/-1;
         }
 
 

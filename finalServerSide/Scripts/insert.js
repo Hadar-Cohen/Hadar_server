@@ -184,7 +184,7 @@ function showEpisode(seasonNum) {
 
 function chooseSeasonClass(seasonNum) {
     document.getElementById(seasonNum).classList.add("cardSelected");
-    for (var i = 1; i <= seasonsCount; i++) {
+    for (var i = 1; i < seasonsCount; i++) {
         if (i != seasonNum) {
             document.getElementById(i).classList.remove("cardSelected");
         }

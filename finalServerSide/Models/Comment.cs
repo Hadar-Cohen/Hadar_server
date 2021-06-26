@@ -16,8 +16,10 @@ namespace finalServerSide.Models.DAL
         string content;
         int likes;
         int dislikes;
+        bool isLike;
+        bool isDislike;
         public Comment() { }
-        public Comment(int commentId, string currDate, int userId, string userName, int seriesId, string content, int likes, int dislikes)
+        public Comment(int commentId, string currDate, int userId, string userName, int seriesId, string content, int likes, int dislikes, bool isLike, bool isDislike)
         {
             this.commentId = commentId;
             this.currDate = currDate;
@@ -27,6 +29,8 @@ namespace finalServerSide.Models.DAL
             this.userName = userName;
             this.likes = likes;
             this.dislikes = dislikes;
+            this.isLike = isLike;
+            this.isDislike = isDislike;
         }
 
         public int CommentId { get => commentId; set => commentId = value; }
@@ -37,6 +41,9 @@ namespace finalServerSide.Models.DAL
         public string Content { get => content; set => content = value; }
         public int Likes { get => likes; set => likes = value; }
         public int Dislikes { get => dislikes; set => dislikes = value; }
+        public bool IsLike { get => isLike; set => isLike = value; }
+        public bool IsDislike { get => isDislike; set => isDislike = value; }
+
 
         public int PostComment()
         {
@@ -44,10 +51,10 @@ namespace finalServerSide.Models.DAL
             return db.Insert(this); //return 1/-1;
         }
 
-        public List<Comment> Get(int seriesId)
+        public List<Comment> Get(int seriesId, int connectedUserId)
         {
             CommentDBServices db = new CommentDBServices();
-            return db.GetComments(seriesId);
+            return db.GetComments(seriesId, connectedUserId);
         }
         public int Get()
         {

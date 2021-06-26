@@ -36,14 +36,26 @@
             else
                 userProfile = "https://image.ibb.co/jw55Ex/def_face.jpg";
 
-            $('#forumTitle').html(user.FirstName + " " + user.LastName + ", welcome to the Fan Forum Of " + s.seriesObj.Name);
+            $('#forumTitle').html("Welcome to the Fan Forum Of " + s.seriesObj.Name);
             buttonsEvents();
-            showForum(seriesId);
+            showForum(seriesId, user.Id);
 
             //get the user and the comments he likes
-            getUserCommetsLike(user.Id, seriesId);
-        });
+            //getUserCommetsLike(user.Id, seriesId);
 
+/*            getUserLikeComm();*/
+        });
+        ///////////////////////
+        //function getUserLikeComm() {
+        //    let api = "../api/UserLikesComm";
+        //    ajaxCall("GET", api, "", getFSuccessCB, error)  
+
+        //}
+        //function getFSuccessCB(list) {
+        //    alert("WORK :)");
+        //    console.log(list);
+        //}
+        ///////////////////////
         function buttonsEvents() {
             submit.addEventListener('click', function publishComment() {
                 let content = $("#contentText").val();
@@ -72,12 +84,10 @@
             dialogElem.close();
         }
 
-        function getUserCommetsLike() {
+        
 
-        }
-
-        function showForum(seriesId) {
-            let api = "../api/Comments?seriesId=" + seriesId;
+        function showForum(seriesId, userId) {
+            let api = "../api/Comments?seriesId=" + seriesId +"&connectedUserId=" +userId;
             ajaxCall("GET", api, "", getSuccessCB, getErrorCB)
         }
 
@@ -87,8 +97,10 @@
             for (const c of commentsList) {
                 str += drawComment(c);
                 getSubComments(c.SeriesId, c.CommentId);
+                setTimeout(() => { updateLikes(c); },0);
             }
             $("#forum").html(str);
+            
         }
 
         function getErrorCB(err) {
@@ -131,7 +143,7 @@
             $('#contentText').val("");
             alert("Submitted to the server! success");
             console.log(series);
-            showForum(series);
+            showForum(series, user.Id);
         }
 
         function postCommentError(err) {
@@ -161,7 +173,7 @@
         function postSCommentSuccess(series) {
             alert("Post Success!");
             console.log(series);
-            showForum(series);
+            showForum(series, user.Id);
         }
 
         function postSCommentError(err) {
@@ -192,13 +204,16 @@
                                                 </p>
                                                 ` + drawLike(comm) + `
 
-                                                <button id="replying" class="reply" onclick="openDialog(` + comm.CommentId + `)"><i class="material-icons">&#xe15e;</i></button>
+                                                <button id="replying" class="replyBtn" onclick="openDialog(` + comm.CommentId + `)"><i class="material-icons">&#xe15e;</i></button>
                                                 <dialog id="idDialog` + comm.CommentId + `">
                                                     <label for="reply">Reply:</label>
                                                     <br>
-                                                    <input id="reply` + comm.CommentId + `" type="text" class="reply" name="reply">
+                                                    <textarea id="reply` + comm.CommentId + `" type="text" class="replyModal" name="reply"></textarea>
                                                     <br>
-                                                    <button id="`+ comm.CommentId + `" class="close" onclick="addSubComment(` + comm.CommentId + `)">Close this Dialog</button>
+                                                    <div id="modalBtns">
+                                                        <button id="send`+ comm.CommentId + `" class="close" onclick="addSubComment(` + comm.CommentId + `)">Send</button>
+                                                        <button id="close`+ comm.CommentId + `" class="close" onclick="closeDialog(` + comm.CommentId + `)">Close</button>
+                                                    </div>
                                                 </dialog>
                                             </div>
                                         </div>
@@ -209,11 +224,22 @@
         function drawLike(comm) {
             let likeId = "like" + comm.CommentId;
             let dislikeId = "dislike" + comm.CommentId;
-            return `<label class="likes" style = "color: green"> ` + comm.Likes + `</label>
+            return `<label id="count-` + likeId + `" class="likes" style = "color: green"> ` + comm.Likes + `</label>
                                     <i id="` + likeId + `" onclick="toggleLike(this, '` + dislikeId + `', ` + comm.CommentId + `, 'fa-thumbs-up', 'fa-thumbs-down', updateCommentLikes)" class="fa fa-thumbs-o-up"></i>
-                                    <label class="dislikes" style = "color: red"> `+ comm.Dislikes + `</label>
+                                    <label id="count-` + dislikeId + `" class="dislikes" style = "color: red"> ` + comm.Dislikes + `</label>
                                     <i id="` + dislikeId + `" onclick="toggleLike(this, '` + likeId + `',` + comm.CommentId + `, 'fa-thumbs-down', 'fa-thumbs-up', updateCommentDislikes)" class="fa fa-thumbs-o-down"></i>
                                 `;
+        }
+
+        function updateLikes(comm) {
+            let likeId = "like" + comm.CommentId;
+            let dislikeId = "dislike" + comm.CommentId;
+            if (comm.IsLike) {
+                document.getElementById(likeId).classList.toggle('fa-thumbs-up');
+            }
+            if (comm.IsDislike) {
+                document.getElementById(dislikeId).classList.toggle('fa-thumbs-down');
+            }
         }
 
         function toggleLike(x, otherThumbId, commentId, myClass, otherClass, updateCallback) {
@@ -230,28 +256,43 @@
             } else {
                 numberOfLikes--;
             }
+            updateCounterLable(x.id, numberOfLikes);
             updateCallback(commentId, numberOfLikes);
         }
-
+        function updateCounterLable(btnId, number) {
+            let x = parseInt(document.getElementById("count-" + btnId).innerHTML);
+            document.getElementById("count-" + btnId).innerHTML = x + number;
+        }
         function updateCommentLikes(commentId, number) {
             alert("change " + commentId + " likes by " + number);
             //update comment with this commentId likes on db ny number
             let api = "../api/Comments?commentId=" + commentId + "&likes=" + number + "&dislikes=0";
             ajaxCall("PUT", api, "", updateLikesSuccess, error);
 
+            updateUserLikeComment(commentId, true, number > 0);
         }
 
-        function updateLikesSuccess() {
-            alert("YAY!!!")
-        }
-        function error(err) {
-            alert("ERROR :(")
-        }
         function updateCommentDislikes(commentId, number) {
             alert("change " + commentId + " dislikes by " + number);
             //update comment with this commentId dislikes on db ny number
             let api = "../api/Comments?commentId=" + commentId + "&likes=0" + "&dislikes=" + number;
             ajaxCall("PUT", api, "", updateLikesSuccess, error);
+
+            updateUserLikeComment(commentId, false, number > 0);
+        }
+
+        function updateUserLikeComment(commentId, isLike, value) {
+            let api = "../api/UserLikesComm?commentId=" + commentId + "&userId=" + user.Id + "&seriesId=" + seriesId + "&like=" + value + "&dislike=" + value;// + "&isLike=" + isLike
+            ajaxCall("PUT", api, "", updateUserLikeCommentSuccess, error)
+        }
+        function updateUserLikeCommentSuccess() {
+            console.log("update user like / dislike comment success");
+        }
+        function updateLikesSuccess() {
+            console.log("update like / dislike success");
+        }
+        function error(err) {
+            alert("ERROR :(")
         }
 
         function drawSubComment(comm) {
@@ -394,11 +435,7 @@
                 </div>
             </div>-->
             <div id="sendMsgRow">
-                <div class="col-xs-12">
-                    <div class="form-group">
-                        <textarea id="contentText" class="form-input" required="" placeholder="Your text"></textarea>
-                    </div>
-                </div>
+                <textarea id="contentText" class="form-input" required="" placeholder="Your text"></textarea>
                 <button id="submit" class="btn btn-primary pull-right"><i class="fa fa-send-o" style="font-size:36px"></i></button>
             </div>
         </div>

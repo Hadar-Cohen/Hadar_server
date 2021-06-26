@@ -104,7 +104,7 @@ namespace finalServerSide.Models.DAL
         //---------------------------------------------------------------------------------
         // Read from the DB into a list - dataReader
         //---------------------------------------------------------------------------------
-        public List<Comment> GetComments(int seriesId)
+        public List<Comment> GetComments(int seriesId, int connectedUserId)
         {
             SqlConnection con = null;
             List<Comment> CommentsList = new List<Comment>();
@@ -113,7 +113,7 @@ namespace finalServerSide.Models.DAL
             {
                 con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
 
-                String selectSTR = "SELECT * FROM Comments_2021 WHERE seriesId = " + seriesId;
+                String selectSTR = "SELECT C.commentId as commentId,currDate,C.userId as userId,userName,C.seriesId as seriesId,content,likes,dislikes,ULC.[like] as isLike,ULC.dislike as isDislike FROM Comments_2021 as C left join (select * from userLikeComments_2021 WHERE userId=" + connectedUserId + ") as ULC on C.CommentId= ULC.commentId WHERE C.SeriesId = " + seriesId;
                 SqlCommand cmd = new SqlCommand(selectSTR, con);
 
                 // get a reader
@@ -130,6 +130,21 @@ namespace finalServerSide.Models.DAL
                     c.Content = (string)(dr["content"]);
                     c.Likes= Convert.ToInt32(dr["likes"]);
                     c.Dislikes = Convert.ToInt32(dr["dislikes"]);
+                    if (!String.IsNullOrEmpty(dr["isLike"].ToString()))
+                    {
+                        c.IsLike = Convert.ToBoolean(dr["isLike"]);
+                    } else
+                    {
+                        c.IsLike = false;
+                    }
+                    if (!String.IsNullOrEmpty(dr["isDislike"].ToString()))
+                    {
+                        c.IsDislike = Convert.ToBoolean(dr["isDislike"]);
+                    }
+                    else
+                    {
+                        c.IsLike = false;
+                    }
                     CommentsList.Add(c);
                 }
 
