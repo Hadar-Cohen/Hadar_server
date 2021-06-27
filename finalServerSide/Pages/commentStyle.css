@@ -1,8 +1,10 @@
 ﻿body {
     margin-top: 20px;
     /*background-color: #1e212d;*/
+    /*background: rgb(30,33,45);
+    background: linear-gradient(273deg, rgba(30,33,45,1) 0%, rgba(141,155,214,1) 50%, rgba(235,200,240,1) 100%);*/
     background: rgb(30,33,45);
-    background: linear-gradient(273deg, rgba(30,33,45,1) 0%, rgba(141,155,214,1) 50%, rgba(235,200,240,1) 100%);
+    background: radial-gradient(circle, rgba(30,33,45,0.9612219887955182) 49%, rgba(40,46,61,0.87718837535014) 100%);
 }
 #forumTitle {
     font-size: 25px;
@@ -63,8 +65,9 @@
     display: inline-block;
     width: 49%;
     margin-bottom: 15px;
-    margin-bottom:0px;
-}
+    margin-bottom: 0px;
+/*    color: #b4b7c1;
+*/}
 
 .be-comment-time {
     text-align: right;
@@ -72,7 +75,8 @@
 
 .be-comment-time {
     font-size: 11px;
-    color: #b4b7c1;
+    /*color: #b4b7c1;*/
+    color:black;
 }
 
 .be-comment-text {
@@ -188,4 +192,8 @@ input .replay{
 }
 body {
     margin: 0;
+    
+}
+#forum {
+    background-color: #b3c0f2;
 }
